@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, BookOpen, PlusCircle } from 'lucide-react';
+import { Users, BookOpen, PlusCircle, Trash2 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -58,6 +58,28 @@ function App() {
     }
   };
 
+  const handleDeleteFaculty = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this faculty member?')) return;
+    try {
+      await axios.delete(`${API_URL}/faculty/${id}`);
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting faculty:', error);
+      alert('Failed to delete faculty');
+    }
+  };
+
+  const handleDeleteCourse = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this course?')) return;
+    try {
+      await axios.delete(`${API_URL}/courses/${id}`);
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      alert('Failed to delete course');
+    }
+  };
+
   if (loading) {
     return <div className="flex h-screen items-center justify-center text-xl text-gray-500">Loading data...</div>;
   }
@@ -106,12 +128,17 @@ function App() {
             <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
               {faculty.length === 0 ? <p className="text-gray-500 text-center py-4">No faculty found.</p> : null}
               {faculty.map(f => (
-                <div key={f.id} className="p-4 border rounded-xl hover:shadow-md transition bg-white group">
-                  <h4 className="font-semibold text-lg">{f.name}</h4>
-                  <div className="text-sm text-gray-500 flex justify-between mt-1">
-                    <span>{f.department}</span>
-                    <span className="opacity-0 group-hover:opacity-100 transition">{f.email}</span>
+                <div key={f.id} className="p-4 border rounded-xl hover:shadow-md transition bg-white group flex justify-between items-start">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-lg">{f.name}</h4>
+                    <div className="text-sm text-gray-500 flex justify-between mt-1">
+                      <span>{f.department}</span>
+                      <span className="opacity-0 group-hover:opacity-100 transition mr-4">{f.email}</span>
+                    </div>
                   </div>
+                  <button onClick={() => handleDeleteFaculty(f.id)} className="text-red-500 hover:text-red-700 p-2 opacity-0 group-hover:opacity-100 transition bg-red-50 hover:bg-red-100 rounded-lg" title="Delete Faculty">
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               ))}
             </div>
@@ -155,17 +182,22 @@ function App() {
             <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
               {courses.length === 0 ? <p className="text-gray-500 text-center py-4">No courses found.</p> : null}
               {courses.map(c => (
-                <div key={c.id} className="p-4 border border-indigo-100 rounded-xl hover:shadow-md transition bg-indigo-50/30">
-                  <div className="flex justify-between items-start">
-                    <h4 className="font-semibold text-lg text-indigo-900">{c.title}</h4>
-                    <span className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full font-medium">
-                      {c.credits} Credits
-                    </span>
+                <div key={c.id} className="p-4 border border-indigo-100 rounded-xl hover:shadow-md transition bg-indigo-50/30 group flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-semibold text-lg text-indigo-900">{c.title}</h4>
+                      <span className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full font-medium mr-4">
+                        {c.credits} Credits
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
+                      <Users size={14} className="text-gray-400" />
+                      Assigned to: <span className="font-medium text-gray-800">{c.faculty_name || 'Unassigned'}</span>
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600 mt-2 flex items-center gap-2">
-                    <Users size={14} className="text-gray-400" />
-                    Assigned to: <span className="font-medium text-gray-800">{c.faculty_name || 'Unassigned'}</span>
-                  </p>
+                  <button onClick={() => handleDeleteCourse(c.id)} className="text-red-500 hover:text-red-700 p-2 opacity-0 group-hover:opacity-100 transition bg-red-50 hover:bg-red-100 rounded-lg" title="Delete Course">
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               ))}
             </div>

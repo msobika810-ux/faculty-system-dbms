@@ -105,6 +105,15 @@ app.post('/api/faculty', async (req, res) => {
     }
 });
 
+app.delete('/api/faculty/:id', async (req, res) => {
+    try {
+        await promisePool.query('DELETE FROM faculty WHERE id = ?', [req.params.id]);
+        res.json({ message: 'Faculty deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get('/api/courses', async (req, res) => {
     try {
         const [rows] = await promisePool.query(`
@@ -129,6 +138,15 @@ app.post('/api/courses', async (req, res) => {
         );
 
         res.status(201).json({ id: result.insertId, title, credits, faculty_id });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/courses/:id', async (req, res) => {
+    try {
+        await promisePool.query('DELETE FROM courses WHERE id = ?', [req.params.id]);
+        res.json({ message: 'Course deleted successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
